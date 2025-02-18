@@ -1,0 +1,14 @@
+[gd_scene load_steps=2 format=3 uid="uid://c3rgl81gb47sg"]
+
+[ext_resource type="Script" path="res://PopupPalette/PopupPalette.gd" id="1_v1vp6"]
+
+[node name="PopupPalette" type="AspectRatioContainer"]
+anchors_preset = -1
+anchor_left = 0.3
+anchor_top = 0.3
+anchor_right = 0.7
+anchor_bottom = 0.7
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_v1vp6")
+metadata/_edit_use_anchors_ = true
