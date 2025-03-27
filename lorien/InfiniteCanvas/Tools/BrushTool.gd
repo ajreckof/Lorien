@@ -33,7 +33,7 @@ func tool_event(event: InputEvent) -> void:
 			end_stroke()
 
 	elif event is InputEventMouseButton && !disable_stroke:
-		if event.button_index == MOUSE_BUTTON_LEFT:
+		if event.button_index == MOUSE_BUTTON_LEFT and event.button_mask & MOUSE_BUTTON_MASK_MIDDLE == 0:
 			if event.pressed:
 				start_stroke()
 			elif performing_stroke:
