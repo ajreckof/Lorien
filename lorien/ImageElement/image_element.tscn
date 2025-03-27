@@ -1,0 +1,35 @@
+[gd_scene load_steps=4 format=3 uid="uid://bdi1au4ptgxym"]
+
+[ext_resource type="Script" path="res://ImageElement/image_element.gd" id="1_x01wo"]
+[ext_resource type="Image" uid="uid://dkvidk2owcqcu" path="res://ImageElement/nb_lecon_8_boxplot_elementjeu_ludification.png" id="2_6yk5n"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_gup4g"]
+draw_center = false
+border_width_left = 20
+border_width_top = 20
+border_width_right = 20
+border_width_bottom = 20
+border_color = Color(0.53074, 0.848434, 1, 1)
+expand_margin_left = 50.0
+expand_margin_top = 50.0
+expand_margin_right = 50.0
+expand_margin_bottom = 50.0
+
+[node name="ImageElement" type="Sprite2D" node_paths=PackedStringArray("base_handle")]
+position = Vector2(-7192.69, 320.073)
+rotation = -2.00713
+scale = Vector2(0.0953395, 0.197045)
+script = ExtResource("1_x01wo")
+base_handle = NodePath("CanvasLayer/Panel")
+image = ExtResource("2_6yk5n")
+
+[node name="CanvasLayer" type="CanvasLayer" parent="."]
+
+[node name="Panel" type="Panel" parent="CanvasLayer"]
+offset_left = -7764.73
+offset_top = 24.5059
+offset_right = -6620.66
+offset_bottom = 615.64
+rotation = -2.00713
+pivot_offset = Vector2(572.037, 295.567)
+theme_override_styles/panel = SubResource("StyleBoxFlat_gup4g")

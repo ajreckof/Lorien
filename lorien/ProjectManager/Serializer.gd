@@ -12,9 +12,11 @@ const POINT_ELEM_SIZE := 3
 const VERSION_NUMBER := 1
 const TYPE_BRUSH_STROKE := 0
 const TYPE_ERASER_STROKE_DEPRECATED := 1 # Deprecated since v0; will be ignored when read; structually the same as normal brush stroke
+const TYPE_IMAGE := 2
 
 # -------------------------------------------------------------------------------------------------
 static func save_project(project: Project) -> void:
+	
 	var start_time := Time.get_ticks_msec()
 	
 	# Open file
@@ -28,38 +30,64 @@ static func save_project(project: Project) -> void:
 	file.store_pascal_string(_dict_to_metadata_str(project.meta_data))
 	
 	# Stroke data
-	for stroke: BrushStroke in project.strokes:
-		# Type
-		file.store_8(TYPE_BRUSH_STROKE)
-		
-		# Color
-		file.store_8(stroke.color.r8)
-		file.store_8(stroke.color.g8)
-		file.store_8(stroke.color.b8)
-		
-		# Brush size
-		file.store_16(int(stroke.size))
-		
-		# Number of points
-		file.store_16(stroke.points.size())
-		
-		# Points
-		var p_idx := 0
-		for p in stroke.points:
-			# Add global_position offset which is != 0 when moved by move tool; but mostly it should just add 0
-			file.store_float(p.x + stroke.global_position.x)
-			file.store_float(p.y + stroke.global_position.y)
-			var pressure: int = clamp(int(stroke.pressures[p_idx] * 255), 0, 255)
-			file.store_8(pressure)
-			p_idx += 1
-
+	for element: Node2D in project.strokes:
+		if element is BrushStroke :
+			# Type
+			file.store_8(TYPE_BRUSH_STROKE)
+			
+			# Color
+			file.store_8(element.color.r8)
+			file.store_8(element.color.g8)
+			file.store_8(element.color.b8)
+			
+			# Brush size
+			file.store_16(int(element.size))
+			
+			# Number of points
+			file.store_16(element.points.size())
+			
+			# Points
+			var p_idx := 0
+			for p in element.points:
+				# Add global_position offset which is != 0 when moved by move tool; but mostly it should just add 0
+				file.store_float(p.x + element.global_position.x)
+				file.store_float(p.y + element.global_position.y)
+				var pressure: int = clamp(int(element.pressures[p_idx] * 255), 0, 255)
+				file.store_8(pressure)
+				p_idx += 1
+		if element is ImageElement :
+			# Type
+			file.store_8(TYPE_IMAGE)
+			
+			var image = element.image
+			#Image width and height
+			file.store_32(image.get_width())
+			file.store_32(image.get_height())
+			
+			#Image Format
+			file.store_8(image.get_format())
+			
+			#Image data size then value
+			var raw_data = image.get_data()
+			file.store_64(len(raw_data))
+			for byte in raw_data :
+				file.store_8(byte)
+			
+			#Image element size global_position and rotation
+			file.store_var(element.transform)
 	# Done
 	file.close()
 	print("Saved %s in %d ms" % [project.filepath, (Time.get_ticks_msec() - start_time)])
 
+
+
+
 # -------------------------------------------------------------------------------------------------
 static func load_project(project: Project) -> void:
 	var start_time := Time.get_ticks_msec()
+
+
+
 
 	# Open file
 	var file := FileAccess.open_compressed(project.filepath, FileAccess.READ, COMPRESSION_METHOD)
@@ -109,6 +137,30 @@ static func load_project(project: Project) -> void:
 					print("Skipped deprecated eraser stroke: %d points" % point_count)
 				else:
 					project.strokes.append(brush_stroke)
+			TYPE_IMAGE :
+				
+				#Image width and height
+				var width = file.get_32()
+				var height = file.get_32()
+				
+				#Image Format
+				var format = file.get_8()
+				
+				#Image data size then value ,
+						 
+				var data_size = file.get_64()
+				var raw_data : PackedByteArray
+
+				for i in data_size:
+					raw_data.append(file.get_8())
+				
+				#Image element size global_position and rotation
+				var element_transform : Transform2D = file.get_var()
+				
+				var image_element := ImageElement.new()
+				image_element.image = Image.create_from_data(width, height, true, format, raw_data)
+				image_element.transform = element_transform
+				project.strokes.append(image_element)
 			_:
 				printerr("Invalid type")
 		

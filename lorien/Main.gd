@@ -506,7 +506,8 @@ func _on_export_confirmed(path: String) -> void:
 			if project != null:
 				var background := _canvas.get_background_color()
 				var svg := SvgExporter.new()
-				svg.export_svg(project.strokes, background, path)
+				# TODO :reimplement svg export 
+				#svg.export_svg(project.strokes, background, path)
 		_:
 			printerr("Unsupported format")
 	

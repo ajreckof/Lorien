@@ -16,7 +16,7 @@ var loaded := false
 
 var filepath: String
 var meta_data: Dictionary
-var strokes: Array[BrushStroke]
+var strokes: Array[Node2D]
 
 # -------------------------------------------------------------------------------------------------
 func _init() -> void:

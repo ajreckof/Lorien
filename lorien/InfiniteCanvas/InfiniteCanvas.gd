@@ -65,6 +65,10 @@ func _ready() -> void:
 	#_viewport.size = get_window().size
 
 	info.pen_inverted = false
+	
+	
+	# Signals
+	get_window().files_dropped.connect(_on_files_dropped)
 
 # -------------------------------------------------------------------------------------------------
 func _unhandled_key_input(event: InputEvent) -> void:
@@ -181,7 +185,7 @@ func get_strokes_in_camera_frustrum() -> Array:
 	return get_tree().get_nodes_in_group(BrushStroke.GROUP_ONSCREEN)
 
 # -------------------------------------------------------------------------------------------------
-func get_all_strokes() -> Array[BrushStroke]:
+func get_all_strokes() -> Array[Node2D]:
 	return _current_project.strokes
 
 # -------------------------------------------------------------------------------------------------
@@ -388,3 +392,26 @@ func _undo_delete_stroke(stroke: BrushStroke) -> void:
 	_strokes_parent.add_child(stroke)
 	info.point_count += stroke.points.size()
 	info.stroke_count += 1
+
+func add_images(images : Array[Image]):
+	var pos := get_local_mouse_position()
+	for image in images :
+		add_image(image, pos)
+
+func add_image(image : Image, pos : Vector2) -> void :
+	var image_element := ImageElement.new()
+	image_element.image = image
+	image_element.pos = pos
+	_current_project.strokes.append(image_element)
+	_strokes_parent.add_child(image_element)
+
+
+func _on_files_dropped(files : PackedStringArray):
+	var dropped_images : Array[Image]
+	for file in files :
+		var image := Image.load_from_file(file)
+		if image :
+			dropped_images.append(image)
+			
+	add_images(dropped_images)
+	
